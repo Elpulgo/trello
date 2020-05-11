@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"os"
+	"trello/trellohandler"
 
 	"github.com/spf13/cobra"
 )
@@ -14,6 +15,16 @@ var rootCmd = &cobra.Command{
 				  love by spf13 and friends in Go.
 				  Complete documentation is available at http://hugo.spf13.com`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+
+		credentialsExists, key, token := trellohandler.GetCredentials()
+
+		if !credentialsExists {
+			fmt.Println("Credentials don't exists")
+		}
+
+		fmt.Println("Key:" + key)
+		fmt.Println("Token:" + token)
+
 		fmt.Printf("Inside rootCmd PersistentPreRun with args: %v\n", args)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
