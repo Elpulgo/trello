@@ -5,7 +5,9 @@ import (
 	"crypto/cipher"
 	"crypto/md5"
 	"crypto/rand"
+	b64 "encoding/base64"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -18,8 +20,8 @@ var (
 )
 
 func PersistCredentials(key string, token string, passphrase string) {
-	encryptedKey := encrypt(key, "password")
-	encryptedToken := encrypt(token, "password")
+	encryptedKey := encrypt(key, passphrase)
+	encryptedToken := encrypt(token, passphrase)
 
 	fileKey, _ := os.Create(keyFilename)
 	defer fileKey.Close()
@@ -36,14 +38,30 @@ func GetCredentials() (bool, string, string) {
 		return false, "", ""
 	}
 
+	var passphrase string
+
+	if !fileExists(passphraseFilename) {
+		fmt.Println(string("\033[32m"), "[] Enter passphrase.")
+		_, err := fmt.Scan(&passphrase)
+		if err != nil {
+			panic(err.Error())
+		}
+	} else {
+		success := getPassphrase(&passphrase)
+		if !success {
+			fmt.Println("## Failed to get stored passphrase from file pass.dat")
+			os.Exit(1)
+		}
+	}
+
 	dataKey, err := ioutil.ReadFile(keyFilename)
 	if err != nil {
-
+		panic(err.Error())
 	}
-	key := decrypt(dataKey, "password")
+	key := decrypt(dataKey, passphrase)
 
 	dataToken, _ := ioutil.ReadFile(tokenFilename)
-	token := decrypt(dataToken, "password")
+	token := decrypt(dataToken, passphrase)
 
 	return true, string(key), string(token)
 }
@@ -103,4 +121,25 @@ func createHash(key string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(key))
 	return hex.EncodeToString(hasher.Sum(nil))
+}
+
+func PersistPassphrase(passphrase string) {
+	filePassphrase, _ := os.Create(passphraseFilename)
+	defer filePassphrase.Close()
+	filePassphrase.Write([]byte(b64.StdEncoding.EncodeToString([]byte(passphrase))))
+}
+
+func getPassphrase(passphrase *string) bool {
+	if _, err := os.Stat(passphraseFilename); os.IsNotExist(err) {
+		return false
+	}
+
+	dataPassphrase, err := ioutil.ReadFile(passphraseFilename)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	decoded, _ := b64.StdEncoding.DecodeString(string(dataPassphrase))
+	*passphrase = string(decoded)
+	return true
 }
