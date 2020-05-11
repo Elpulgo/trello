@@ -19,7 +19,7 @@ var rootCmd = &cobra.Command{
 		credentialsExists, key, token := trellohandler.GetCredentials()
 
 		if !credentialsExists {
-			fmt.Println("Credentials don't exists")
+			createCredentials()
 		}
 
 		fmt.Println("Key:" + key)
@@ -37,4 +37,47 @@ func Execute() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func createCredentials() {
+	fmt.Println("== Credentials for Trello API not stored")
+
+	var key string
+	var token string
+	var storePassphrase string
+	var passphrase string
+
+	fmt.Println(string("\033[32m"), "[] Paste your Trello API key")
+
+	_, err := fmt.Scan(&key)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	fmt.Println(string("\033[32m"), "[] Paste your Trello API token")
+
+	_, err = fmt.Scan(&token)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	fmt.Println(string("\033[32m"), "[] A password is required to access the Trello API credentials. Would you like to store this password? (y/n)\n(Else you will be prompted each time for the password.)")
+
+	_, err = fmt.Scan(&storePassphrase)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	fmt.Println(string("\033[32m"), "[] Enter passphrase.")
+	_, err = fmt.Scan(&passphrase)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if storePassphrase == "y" || storePassphrase == "Y" {
+		trellohandler.PersistPassphrase(passphrase)
+	}
+
+	trellohandler.PersistCredentials(
+		key, token, passphrase)
 }
