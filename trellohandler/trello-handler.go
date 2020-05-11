@@ -39,12 +39,26 @@ func GetCredentials() (bool, string, string) {
 	}
 
 	var passphrase string
+	var key string
+	var token string
 
 	if !fileExists(passphraseFilename) {
-		fmt.Println(string("\033[32m"), "[] Enter passphrase.")
-		_, err := fmt.Scan(&passphrase)
-		if err != nil {
-			panic(err.Error())
+		var passwordSuccess bool = false
+		fmt.Println("## Enter passphrase.")
+
+		for !passwordSuccess {
+			_, err := fmt.Scan(&passphrase)
+			if err != nil {
+				panic(err.Error())
+			}
+
+			success := readCredentials(&key, &token, passphrase)
+			if !success {
+				fmt.Println("## Wrong passphrase, try again.")
+				continue
+			}
+
+			passwordSuccess = success
 		}
 	} else {
 		success := getPassphrase(&passphrase)
@@ -52,18 +66,31 @@ func GetCredentials() (bool, string, string) {
 			fmt.Println("## Failed to get stored passphrase from file pass.dat")
 			os.Exit(1)
 		}
+
+		readCredentials(&key, &token, passphrase)
 	}
+
+	return true, key, token
+}
+
+func readCredentials(key *string, token *string, passphrase string) bool {
 
 	dataKey, err := ioutil.ReadFile(keyFilename)
 	if err != nil {
 		panic(err.Error())
 	}
-	key := decrypt(dataKey, passphrase)
+	success, decryptedKey := decrypt(dataKey, passphrase)
+	if !success {
+		return false
+	}
 
 	dataToken, _ := ioutil.ReadFile(tokenFilename)
-	token := decrypt(dataToken, passphrase)
+	success, decryptedToken := decrypt(dataToken, passphrase)
 
-	return true, string(key), string(token)
+	*key = string(decryptedKey)
+	*token = string(decryptedToken)
+
+	return true
 }
 
 func fileExists(fileName string) bool {
@@ -98,7 +125,7 @@ func encrypt(data string, passphrase string) []byte {
 	return ciphertext
 }
 
-func decrypt(data []byte, passphrase string) []byte {
+func decrypt(data []byte, passphrase string) (bool, []byte) {
 	key := []byte(createHash(passphrase))
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -112,9 +139,9 @@ func decrypt(data []byte, passphrase string) []byte {
 	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
 	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
-		panic(err.Error())
+		return false, []byte{}
 	}
-	return plaintext
+	return true, plaintext
 }
 
 func createHash(key string) string {

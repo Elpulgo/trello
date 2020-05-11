@@ -9,11 +9,13 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "trello",
-	Short: "Hugo is a very fast static site generator",
-	Long: `A Fast and Flexible Static Site Generator built with
-				  love by spf13 and friends in Go.
-				  Complete documentation is available at http://hugo.spf13.com`,
+	Use:   "tre",
+	Short: "A simple CLI for Trello boards.",
+	Long: `A simple CLI for Trello boards and tasks. 
+	Built in Go for simplicity. Requires an API Key and Token for your Trello board.
+	These will be stored in encrypted files on disk, protected by a password of choice.
+	Optional to store the password on disk aswell if you don't want to be prompted on each use.
+	Complete documentation is available at http://github.com/elpulgo/trello`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 
 		credentialsExists, key, token := trellohandler.GetCredentials()
@@ -68,14 +70,19 @@ func createCredentials() {
 		panic(err.Error())
 	}
 
-	fmt.Println(string("\033[32m"), "[] Enter passphrase.")
-	_, err = fmt.Scan(&passphrase)
-	if err != nil {
-		panic(err.Error())
-	}
-
 	if storePassphrase == "y" || storePassphrase == "Y" {
+		fmt.Println(string("\033[32m"), "[] Enter passphrase to persist on disk (Will be saved in 'pass.dat')")
+		_, err = fmt.Scan(&passphrase)
+		if err != nil {
+			panic(err.Error())
+		}
 		trellohandler.PersistPassphrase(passphrase)
+	} else {
+		fmt.Println(string("\033[32m"), "[] Enter passphrase to encrypt credentials. Note! This won't be saved so remember your passphrase!")
+		_, err = fmt.Scan(&passphrase)
+		if err != nil {
+			panic(err.Error())
+		}
 	}
 
 	trellohandler.PersistCredentials(
