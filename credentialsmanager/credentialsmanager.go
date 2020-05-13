@@ -1,4 +1,4 @@
-package credentials
+package credentialsmanager
 
 import (
 	"crypto/aes"

@@ -3,7 +3,7 @@ package commands
 import (
 	"fmt"
 	"os"
-	"trello/credentials"
+	"trello/credentialsmanager"
 
 	"github.com/spf13/cobra"
 )
@@ -26,7 +26,7 @@ Complete documentation is available at http://github.com/elpulgo/trello`,
 			return
 		}
 
-		credentialsExists, key, token := credentials.GetCredentials()
+		credentialsExists, _, _ := credentialsmanager.GetCredentials()
 
 		if !credentialsExists {
 			createCredentials()
@@ -80,7 +80,7 @@ func createCredentials() {
 		if err != nil {
 			panic(err.Error())
 		}
-		credentials.PersistPassphrase(passphrase)
+		credentialsmanager.PersistPassphrase(passphrase)
 	} else {
 		fmt.Println(string("\033[32m"), "\n@ Enter passphrase to encrypt credentials. Note! This won't be saved so remember your passphrase!")
 		_, err = fmt.Scan(&passphrase)
@@ -89,6 +89,6 @@ func createCredentials() {
 		}
 	}
 
-	credentials.PersistCredentials(
+	credentialsmanager.PersistCredentials(
 		key, token, passphrase)
 }
