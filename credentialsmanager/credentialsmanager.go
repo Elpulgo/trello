@@ -101,10 +101,6 @@ func fileExists(fileName string) bool {
 	return true
 }
 
-func GetBoards() {
-
-}
-
 func encrypt(data string, passphrase string) []byte {
 	block, err := aes.NewCipher([]byte(createHash(passphrase)))
 	if err != nil {

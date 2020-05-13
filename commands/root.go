@@ -11,8 +11,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "tre",
 	Short: "A simple CLI for Trello boards.",
-	Long: `
-A simple CLI for Trello boards and tasks. 
+	Long: `A simple CLI for Trello boards and tasks. 
 
 ===========================================================================================
 
@@ -22,7 +21,8 @@ Optional to store the password on disk aswell if you don't want to be prompted o
 Complete documentation is available at http://github.com/elpulgo/trello`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 
-		if cmd.Name() == "tre" {
+		setColor()
+		if cmd.Name() == "tre" || cmd.Name() == "credentials" {
 			return
 		}
 
@@ -44,27 +44,31 @@ func Execute() {
 	}
 }
 
+func setColor() {
+	fmt.Println(string("\033[32m"))
+}
+
 func createCredentials() {
 	var key string
 	var token string
 	var storePassphrase string
 	var passphrase string
 
-	fmt.Println(string("\033[32m"), "\n@ Credentials for Trello API not stored. Paste your Trello API key.")
+	fmt.Println("\n@ Credentials for Trello API not stored. Paste your Trello API key.")
 
 	_, err := fmt.Scan(&key)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	fmt.Println(string("\033[32m"), "\n@ Paste your Trello API token.")
+	fmt.Println("\n@ Paste your Trello API token.")
 
 	_, err = fmt.Scan(&token)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	fmt.Println(string("\033[32m"), `
+	fmt.Println(`
 @ A password is required to access the Trello API credentials. 
   Would you like to store this password? (y/n)
   (Else you will be prompted each time for the password.)`)
@@ -75,14 +79,14 @@ func createCredentials() {
 	}
 
 	if storePassphrase == "y" || storePassphrase == "Y" {
-		fmt.Println(string("\033[32m"), "\n@ Enter passphrase to persist on disk (Will be saved in 'pass.dat')")
+		fmt.Println("\n@ Enter passphrase to persist on disk (Will be saved in 'pass.dat')")
 		_, err = fmt.Scan(&passphrase)
 		if err != nil {
 			panic(err.Error())
 		}
 		credentialsmanager.PersistPassphrase(passphrase)
 	} else {
-		fmt.Println(string("\033[32m"), "\n@ Enter passphrase to encrypt credentials. Note! This won't be saved so remember your passphrase!")
+		fmt.Println("\n@ Enter passphrase to encrypt credentials. Note! This won't be saved so remember your passphrase!")
 		_, err = fmt.Scan(&passphrase)
 		if err != nil {
 			panic(err.Error())
