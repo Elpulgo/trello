@@ -1,4 +1,4 @@
-package trellohandler
+package credentials
 
 import (
 	"crypto/aes"
@@ -44,7 +44,7 @@ func GetCredentials() (bool, string, string) {
 
 	if !fileExists(passphraseFilename) {
 		var passwordSuccess bool = false
-		fmt.Println("## Enter passphrase.")
+		fmt.Println("@ Enter passphrase.")
 
 		for !passwordSuccess {
 			_, err := fmt.Scan(&passphrase)
@@ -54,7 +54,7 @@ func GetCredentials() (bool, string, string) {
 
 			success := readCredentials(&key, &token, passphrase)
 			if !success {
-				fmt.Println("## Wrong passphrase, try again.")
+				fmt.Println("@ Wrong passphrase, try again.")
 				continue
 			}
 
@@ -63,7 +63,7 @@ func GetCredentials() (bool, string, string) {
 	} else {
 		success := getPassphrase(&passphrase)
 		if !success {
-			fmt.Println("## Failed to get stored passphrase from file pass.dat")
+			fmt.Println("@ Failed to get stored passphrase from file pass.dat")
 			os.Exit(1)
 		}
 
