@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"trello/credentialsmanager"
 
 	"github.com/spf13/cobra"
 )
@@ -29,7 +30,13 @@ The password can be saved encoded in a file if you don't wan't to be prompted ea
 (Will be saved in 'pass.dat')
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Credentials command FIRED!" + key + " token: " + token + " pp:" + passphrase)
+		if storepassphrase == "y" || storepassphrase == "Y" {
+			credentialsmanager.PersistPassphrase(passphrase)
+			fmt.Println("@ Passphrase saved.")
+		}
+
+		credentialsmanager.PersistCredentials(key, token, passphrase)
+		fmt.Println("@ Credentials saved.")
 	},
 }
 
