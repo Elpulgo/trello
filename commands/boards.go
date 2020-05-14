@@ -46,14 +46,14 @@ func printBoards() {
 	json.Unmarshal(body, &boards)
 
 	const padding = 8
-	w := tabwriter.NewWriter(os.Stdout, 18, 8, padding, '\t', tabwriter.AlignRight)
-	defer w.Flush()
+	writer := tabwriter.NewWriter(os.Stdout, 18, 8, padding, '\t', tabwriter.AlignRight)
+	defer writer.Flush()
 
-	fmt.Fprintf(w, "%s\t%s\t%s\t\n", "Numeric short", "Name", "Id")
-	fmt.Fprintf(w, "%s\t%s\t%s\t\n\n", "=============", "====", "==")
+	fmt.Fprintf(writer, "%s\t%s\t%s\t\n", "Numeric short", "Name", "Id")
+	fmt.Fprintf(writer, "%s\t%s\t%s\t\n\n", "=============", "====", "==")
 
 	for index, board := range boards {
-		fmt.Fprintf(w, "[# %s]\t%s\t{%s}\t\n", strconv.Itoa(index), board.Name, board.Id)
+		fmt.Fprintf(writer, "[# %s]\t%s\t{%s}\t\n", strconv.Itoa(index), board.Name, board.Id)
 	}
 }
 
