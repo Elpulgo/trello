@@ -14,17 +14,39 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	specificBoard string
+	boardName     string
+)
+
 var boardsCommand = &cobra.Command{
 	Use:   "boards",
 	Short: "Show all boards for user",
 	Long:  `Show all boards for the user, in alphabetical order with numeric shortkey`,
 	Run: func(cmd *cobra.Command, args []string) {
-		printBoards()
+		if specificBoard == "" {
+			printBoards()
+		} else {
+			printSpecificBoard()
+		}
 	},
 }
 
 func init() {
+	boardsCommand.Flags().StringVarP(&specificBoard, "board", "b", "", "Show cards on a specific board, specified with either # or id.")
+	boardsCommand.Flags().StringVarP(&boardName, "name", "n", "", "Show cards on a specific board, specified with a name.")
+
 	rootCmd.AddCommand(boardsCommand)
+}
+
+func printSpecificBoard() {
+	if len(specificBoard) > 2 {
+		fmt.Println("Printed id")
+	} else {
+		fmt.Println("Printed #")
+	}
+
+	fmt.Println("Specific board: " + specificBoard)
 }
 
 func printBoards() {
