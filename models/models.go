@@ -6,13 +6,23 @@ type Board struct {
 }
 
 type Action struct {
-	id   string     `json:"id`
-	data actionData `json:"data"`
+	Id   string     `json:"id`
+	Data actionData `json:"data"`
+	Type string     `json:"type"`
 }
 
 type actionData struct {
-	text     string `json:"text"`
-	cardId   string `json:"card:id"`
-	listId   string `json:list:id`
-	listName string `json:list:name`
+	Text string `json:"text"`
+	Card card   `json:"card"`
+	List list   `json:list`
+}
+
+type card struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type list struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
 }
