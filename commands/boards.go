@@ -6,7 +6,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
+	"strings"
 	"text/tabwriter"
 	"trello/credentialsmanager"
 	"trello/models"
@@ -66,48 +68,57 @@ func printBoards() {
 func printCards() {
 	var actions []models.Action
 	var lists []models.List
+	actionsChannel := make(chan []models.Action)
+	listsChannel := make(chan []models.List)
 
 	if len(specificBoard) > 2 {
-		actions = getCards(specificBoard)
-		lists = getLists(specificBoard)
+		go getCards(specificBoard, actionsChannel)
+		actions = <-actionsChannel
+
+		go getLists(specificBoard, listsChannel)
+		lists = <-listsChannel
 	} else {
 		fmt.Println("Need to collect all boards first and filter")
 		// boards := getAllBoards()
 	}
 
-	// TODO: Get cards instead of actions.. still sort them on lists.
 	// And then get comments for each card. Use async here to not block or do in paralell?
-	output := make(map[string][]models.Action)
-	listMap := make(map[string]string)
+	var listMap []models.ListMap
 
 	for _, m := range lists {
-		if m.Id == "" {
-			continue
-		}
-
-		listMap[m.Id] = m.Name
-		output[m.Id] = append(output[m.Id], models.Action{})
+		listMap = append(listMap, models.ListMap{Id: m.Id, Name: m.Name, Actions: getCardsForList(actions, m.Id)})
 	}
 
-	for _, action := range actions {
-		output[action.ListId] = append(output[action.ListId], action)
-	}
+	for _, list := range listMap {
+		fmt.Println("## " + list.Name)
+		divider := strings.Repeat("=", len(list.Name)+3)
+		fmt.Print(divider)
+		fmt.Println("")
 
-	for listId, actions := range output {
-		fmt.Println("-" + listMap[listId])
-
-		for _, action := range actions {
+		for _, action := range list.Actions {
 			if action.Name == "" {
 				continue
 			}
 
 			fmt.Println("\t# " + action.Name)
 		}
-		// if action.Data.Text != "" {
-		// 	fmt.Println("\t\t" + action.Data.Text)
-		// }
+
 		fmt.Println("")
 	}
+}
+
+func getCardsForList(allActions []models.Action, listId string) []models.Action {
+	var cards []models.Action
+
+	for _, action := range allActions {
+		if action.ListId != listId {
+			continue
+		}
+
+		cards = append(cards, action)
+	}
+
+	return cards
 }
 
 func getAllBoards() []models.Board {
@@ -130,7 +141,7 @@ func getAllBoards() []models.Board {
 	return boards
 }
 
-func getCards(boardId string) []models.Action {
+func getCards(boardId string, result chan []models.Action) {
 	response, error := http.Get(getCardsUrl(boardId))
 
 	if error != nil {
@@ -148,11 +159,10 @@ func getCards(boardId string) []models.Action {
 
 	var actions []models.Action
 	json.Unmarshal(body, &actions)
-
-	return actions
+	result <- actions
 }
 
-func getLists(boardId string) []models.List {
+func getLists(boardId string, result chan []models.List) {
 	response, error := http.Get(getListsUrl(boardId))
 
 	if error != nil {
@@ -171,7 +181,11 @@ func getLists(boardId string) []models.List {
 	var lists []models.List
 	json.Unmarshal(body, &lists)
 
-	return lists
+	sort.Slice(lists, func(i, j int) bool {
+		return lists[i].Position < lists[j].Position
+	})
+
+	result <- lists
 }
 
 func getAllBoardsUrl() string {
