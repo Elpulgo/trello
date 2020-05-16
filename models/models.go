@@ -12,6 +12,13 @@ type Action struct {
 }
 
 type List struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
+	Id       string `json:"id"`
+	Name     string `json:"name"`
+	Position int64  `json:"pos"`
+}
+
+type ListMap struct {
+	Id      string
+	Name    string
+	Actions []Action
 }
