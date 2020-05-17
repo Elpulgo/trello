@@ -115,6 +115,10 @@ func getCardsForList(allActions []models.Action, listId string) []models.Action 
 			continue
 		}
 
+		// TODO: Check if any comments on card, if so fetch comments..
+
+		getComments(action.Id)
+
 		cards = append(cards, action)
 	}
 
@@ -162,6 +166,26 @@ func getCards(boardId string, result chan []models.Action) {
 	result <- actions
 }
 
+func getComments(cardId string) {
+	response, error := http.Get(getCardUrl(cardId))
+
+	if error != nil {
+		fmt.Println("\n@ Failed to get card from Trello API. Will exit.")
+		os.Exit(1)
+	}
+
+	defer response.Body.Close()
+
+	body, error := ioutil.ReadAll(response.Body)
+	if error != nil {
+		fmt.Println("\n@ Failed to parse card from Trello API response. Will exit.")
+		os.Exit(1)
+	}
+
+	fmt.Println(string(body))
+
+}
+
 func getLists(boardId string, result chan []models.List) {
 	response, error := http.Get(getListsUrl(boardId))
 
@@ -194,6 +218,10 @@ func getAllBoardsUrl() string {
 
 func getCardsUrl(boardId string) string {
 	return "https://api.trello.com/1/boards/" + boardId + "/cards?key=" + trelloKey + "&token=" + trellotoken
+}
+
+func getCardUrl(cardId string) string {
+	return "https://api.trello.com/1/cards/" + cardId + "?key=" + trelloKey + "&token=" + trellotoken
 }
 
 func getListsUrl(boardId string) string {
