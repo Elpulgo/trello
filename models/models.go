@@ -6,9 +6,15 @@ type Board struct {
 }
 
 type Action struct {
-	Id     string `json:"id"`
-	ListId string `json:"idList"`
-	Name   string `json:"name"`
+	Id      string `json:"id"`
+	ListId  string `json:"idList"`
+	Name    string `json:"name"`
+	Badge   Badge  `json:"badges"`
+	Comment string
+}
+
+type Badge struct {
+	Comments int64 `json:"comments"`
 }
 
 type List struct {
