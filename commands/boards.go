@@ -75,6 +75,8 @@ func printCards() {
 		go getCards(specificBoard, actionsChannel)
 		actions = <-actionsChannel
 
+		fmt.Println(actions)
+
 		go getLists(specificBoard, listsChannel)
 		lists = <-listsChannel
 	} else {
@@ -101,6 +103,9 @@ func printCards() {
 			}
 
 			fmt.Println("\t# " + action.Name)
+			if action.Comment != "" {
+				fmt.Println("\t\t | " + action.Comment)
+			}
 		}
 
 		fmt.Println("")
@@ -114,10 +119,6 @@ func getCardsForList(allActions []models.Action, listId string) []models.Action 
 		if action.ListId != listId {
 			continue
 		}
-
-		// TODO: Check if any comments on card, if so fetch comments..
-
-		getComments(action.Id)
 
 		cards = append(cards, action)
 	}
@@ -163,10 +164,23 @@ func getCards(boardId string, result chan []models.Action) {
 
 	var actions []models.Action
 	json.Unmarshal(body, &actions)
+
+	for index, action := range actions {
+		if action.Badge.Comments < 1 {
+			continue
+		}
+
+		comment := make(chan string)
+		go getComments(action.Id, comment)
+		actions[index].Comment = <-comment
+	}
+
 	result <- actions
 }
 
-func getComments(cardId string) {
+func getComments(cardId string, result chan string) {
+
+	// TODO: Use action url instead and filter for type Comment??
 	response, error := http.Get(getCardUrl(cardId))
 
 	if error != nil {
@@ -182,8 +196,9 @@ func getComments(cardId string) {
 		os.Exit(1)
 	}
 
-	fmt.Println(string(body))
+	// fmt.Println(string(body))
 
+	result <- string(body)
 }
 
 func getLists(boardId string, result chan []models.List) {
