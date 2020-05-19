@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 	"trello/credentialsmanager"
 	"trello/models"
 
@@ -43,7 +44,24 @@ func init() {
 }
 
 func printCard() {
-	fmt.Println("Hello card!")
+	var comments []models.Comment
+	commentsChannel := make(chan []models.Comment)
+	go getComments(cardId, commentsChannel)
+	comments = <-commentsChannel
+
+	if len(comments) < 1 {
+		fmt.Println("No comments found for card. Bye bye.")
+		return
+	}
+
+	fmt.Println("## " + comments[0].Data.Card.Name)
+	divider := strings.Repeat("=", len(comments[0].Data.Card.Name)+3)
+	fmt.Print(divider)
+	fmt.Println("")
+
+	for _, comment := range comments {
+		fmt.Println("\t- " + comment.Data.Text)
+	}
 }
 
 func getComments(cardId string, result chan []models.Comment) {

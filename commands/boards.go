@@ -32,7 +32,8 @@ var boardsCommand = &cobra.Command{
 		success, trelloKey, trellotoken = credentialsmanager.GetCredentials()
 
 		if !success {
-			os.Exit(1)
+			fmt.Println("Failed to get credentials. Bye bye.")
+			return
 		}
 
 		if specificBoard == "" && boardName == "" {
@@ -79,7 +80,7 @@ func printCards() {
 		lists = <-listsChannel
 	} else {
 		fmt.Println("Need to collect all boards first and filter")
-		// boards := getAllBoards()
+		// TODO: boards := getAllBoards()
 	}
 
 	var listMap []models.ListMap
