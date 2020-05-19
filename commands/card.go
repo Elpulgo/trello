@@ -1,9 +1,13 @@
 package commands
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"trello/credentialsmanager"
+	"trello/models"
 
 	"github.com/spf13/cobra"
 )
@@ -40,4 +44,30 @@ func init() {
 
 func printCard() {
 	fmt.Println("Hello card!")
+}
+
+func getComments(cardId string, result chan []models.Comment) {
+	response, error := http.Get(getActionUrl(cardId))
+
+	if error != nil {
+		fmt.Println("\n@ Failed to get card from Trello API. Will exit.")
+		os.Exit(1)
+	}
+
+	defer response.Body.Close()
+
+	body, error := ioutil.ReadAll(response.Body)
+	if error != nil {
+		fmt.Println("\n@ Failed to parse card from Trello API response. Will exit.")
+		os.Exit(1)
+	}
+
+	var comments []models.Comment
+	json.Unmarshal(body, &comments)
+
+	result <- comments
+}
+
+func getActionUrl(cardId string) string {
+	return "https://api.trello.com/1/cards/" + cardId + "/actions?fields=type,data&key=" + trelloKey + "&token=" + trellotoken
 }
