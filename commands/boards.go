@@ -75,8 +75,6 @@ func printCards() {
 		go getCards(specificBoard, actionsChannel)
 		actions = <-actionsChannel
 
-		fmt.Println(actions)
-
 		go getLists(specificBoard, listsChannel)
 		lists = <-listsChannel
 	} else {
@@ -103,8 +101,12 @@ func printCards() {
 			}
 
 			fmt.Println("\t# " + action.Name)
-			if action.Comment != "" {
-				fmt.Println("\t\t | " + action.Comment)
+			if len(action.Comments) > 0 {
+				for _, comment := range action.Comments {
+					if comment.Type == "commentCard" {
+						fmt.Println("\t\t | " + comment.Data.Text)
+					}
+				}
 			}
 		}
 
@@ -170,18 +172,16 @@ func getCards(boardId string, result chan []models.Action) {
 			continue
 		}
 
-		comment := make(chan string)
-		go getComments(action.Id, comment)
-		actions[index].Comment = <-comment
+		comments := make(chan []models.Comment)
+		go getComments(action.Id, comments)
+		actions[index].Comments = <-comments
 	}
 
 	result <- actions
 }
 
-func getComments(cardId string, result chan string) {
-
-	// TODO: Use action url instead and filter for type Comment??
-	response, error := http.Get(getCardUrl(cardId))
+func getComments(cardId string, result chan []models.Comment) {
+	response, error := http.Get(getActionUrl(cardId))
 
 	if error != nil {
 		fmt.Println("\n@ Failed to get card from Trello API. Will exit.")
@@ -196,9 +196,10 @@ func getComments(cardId string, result chan string) {
 		os.Exit(1)
 	}
 
-	// fmt.Println(string(body))
+	var comments []models.Comment
+	json.Unmarshal(body, &comments)
 
-	result <- string(body)
+	result <- comments
 }
 
 func getLists(boardId string, result chan []models.List) {
@@ -241,4 +242,8 @@ func getCardUrl(cardId string) string {
 
 func getListsUrl(boardId string) string {
 	return "https://api.trello.com/1/boards/" + boardId + "/lists?key=" + trelloKey + "&token=" + trellotoken
+}
+
+func getActionUrl(cardId string) string {
+	return "https://api.trello.com/1/cards/" + cardId + "/actions?fields=type,data&key=" + trelloKey + "&token=" + trellotoken
 }

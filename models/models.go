@@ -6,11 +6,11 @@ type Board struct {
 }
 
 type Action struct {
-	Id      string `json:"id"`
-	ListId  string `json:"idList"`
-	Name    string `json:"name"`
-	Badge   Badge  `json:"badges"`
-	Comment string
+	Id       string `json:"id"`
+	ListId   string `json:"idList"`
+	Name     string `json:"name"`
+	Badge    Badge  `json:"badges"`
+	Comments []Comment
 }
 
 type Badge struct {
@@ -27,4 +27,13 @@ type ListMap struct {
 	Id      string
 	Name    string
 	Actions []Action
+}
+
+type Comment struct {
+	Type string `json:"type"`
+	Data Data   `json:"data"`
+}
+
+type Data struct {
+	Text string `json:"text"`
 }
