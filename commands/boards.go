@@ -82,7 +82,6 @@ func printCards() {
 		// boards := getAllBoards()
 	}
 
-	// And then get comments for each card. Use async here to not block or do in paralell?
 	var listMap []models.ListMap
 
 	for _, m := range lists {
@@ -165,39 +164,7 @@ func getCards(boardId string, result chan []models.Action) {
 	var actions []models.Action
 	json.Unmarshal(body, &actions)
 
-	for index, action := range actions {
-		if action.Badge.Comments < 1 {
-			continue
-		}
-
-		comments := make(chan []models.Comment)
-		go getComments(action.Id, comments)
-		actions[index].Comments = <-comments
-	}
-
 	result <- actions
-}
-
-func getComments(cardId string, result chan []models.Comment) {
-	response, error := http.Get(getActionUrl(cardId))
-
-	if error != nil {
-		fmt.Println("\n@ Failed to get card from Trello API. Will exit.")
-		os.Exit(1)
-	}
-
-	defer response.Body.Close()
-
-	body, error := ioutil.ReadAll(response.Body)
-	if error != nil {
-		fmt.Println("\n@ Failed to parse card from Trello API response. Will exit.")
-		os.Exit(1)
-	}
-
-	var comments []models.Comment
-	json.Unmarshal(body, &comments)
-
-	result <- comments
 }
 
 func getLists(boardId string, result chan []models.List) {
@@ -240,8 +207,4 @@ func getCardUrl(cardId string) string {
 
 func getListsUrl(boardId string) string {
 	return "https://api.trello.com/1/boards/" + boardId + "/lists?key=" + trelloKey + "&token=" + trellotoken
-}
-
-func getActionUrl(cardId string) string {
-	return "https://api.trello.com/1/cards/" + cardId + "/actions?fields=type,data&key=" + trelloKey + "&token=" + trellotoken
 }
