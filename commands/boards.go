@@ -100,14 +100,20 @@ func printCards() {
 				continue
 			}
 
-			fmt.Println("\t# " + action.Name)
-			if len(action.Comments) > 0 {
-				for _, comment := range action.Comments {
-					if comment.Type == "commentCard" {
-						fmt.Println("\t\t | " + comment.Data.Text)
-					}
-				}
+			commentsString := "     "
+			if action.Badge.Comments > 0 {
+				commentsString = "(*" + strconv.Itoa(action.Badge.Comments) + ")"
 			}
+
+			fmt.Println("{" + action.Id + "}  " + commentsString + "\t" + action.Name)
+
+			// if len(action.Comments) > 0 {
+			// 	for _, comment := range action.Comments {
+			// 		if comment.Type == "commentCard" {
+			// 			fmt.Println("\t\t | " + comment.Data.Text)
+			// 		}
+			// 	}
+			// }
 		}
 
 		fmt.Println("")
