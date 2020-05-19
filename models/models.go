@@ -36,4 +36,9 @@ type Comment struct {
 
 type Data struct {
 	Text string `json:"text"`
+	Card Card   `json:"card"`
+}
+
+type Card struct {
+	Name string `json:"name"`
 }
