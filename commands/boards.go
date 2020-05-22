@@ -13,6 +13,7 @@ import (
 	"trello/credentialsmanager"
 	"trello/models"
 
+	"github.com/gookit/color"
 	"github.com/spf13/cobra"
 )
 
@@ -54,15 +55,19 @@ func init() {
 func printBoards() {
 	boards := getAllBoards()
 
-	const padding = 8
-	writer := tabwriter.NewWriter(os.Stdout, 18, 8, padding, '\t', tabwriter.AlignRight)
+	const padding = 16
+	writer := tabwriter.NewWriter(os.Stdout, 10, 18, padding, '\t', tabwriter.AlignRight)
 	defer writer.Flush()
 
-	fmt.Fprintf(writer, "%s\t%s\t%s\t\n", "Numeric short", "Name", "Id")
-	fmt.Fprintf(writer, "%s\t%s\t%s\t\n\n", "=============", "====", "==")
+	red := color.FgRed.Render
+	green := color.Style{color.FgGreen, color.OpBold}.Render
+	yellow := color.FgYellow.Render
+
+	fmt.Fprintf(writer, "%s\t%s\t\t%s\t\n", green("Numeric short", color.OpBold), green("Name"), green("Id"))
+	fmt.Fprintf(writer, "%s\t%s\t\t%s\t\n\n", green("============="), green("===="), green("=="))
 
 	for index, board := range boards {
-		fmt.Fprintf(writer, "[# %s]\t%s\t{%s}\t\n", strconv.Itoa(index), board.Name, board.Id)
+		fmt.Fprintf(writer, "[%s]\t\t%s\t{%s}\t\n", red("# "+strconv.Itoa(index)), yellow(board.Name), green(board.Id))
 	}
 }
 
