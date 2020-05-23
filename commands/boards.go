@@ -114,6 +114,12 @@ func printCards() {
 	go GetLists(specificBoard, listsChannel)
 	lists = <-listsChannel
 
+	if len(lists) < 1 {
+		loader.End()
+		fmt.Println(color.RedBold("No lists exists on choosen board. Bye bye."))
+		os.Exit(1)
+	}
+
 	var listMap []models.ListMap
 
 	for _, m := range lists {
