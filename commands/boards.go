@@ -91,7 +91,22 @@ func printCards() {
 	listsChannel := make(chan []models.List)
 
 	if boardName != "" {
+		boards := GetAllBoards()
+		success, board, suggestions := findBoardByFreeText(boardName, boards)
+		if !success {
+			loader.End()
+			if len(suggestions) > 0 {
+				fmt.Println(color.YellowBold("Failed to find your board, did you mean?\n"))
+				for _, suggestion := range suggestions {
+					fmt.Println("* " + suggestion)
+				}
+			} else {
+				fmt.Println(color.YellowBold("Failed to find your board!\n"))
+			}
+			os.Exit(1)
+		}
 
+		specificBoard = board.Id
 	} else if len(specificBoard) <= 2 {
 		if index, err := strconv.Atoi(specificBoard); err == nil {
 			boards := GetAllBoards()
@@ -163,4 +178,20 @@ func mapCardsToList(allActions []models.Action, listId string) []models.Action {
 	}
 
 	return cards
+}
+
+func findBoardByFreeText(freeText string, boards []models.Board) (bool, models.Board, []string) {
+	var suggestions []string
+
+	for _, board := range boards {
+		if board.Name == freeText {
+			return true, board, []string{}
+		}
+
+		if strings.Index(board.Name, freeText) > -1 {
+			suggestions = append(suggestions, board.Name)
+		}
+	}
+
+	return false, models.Board{}, suggestions
 }
