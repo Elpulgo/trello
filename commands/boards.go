@@ -91,27 +91,28 @@ func printCards() {
 	listsChannel := make(chan []models.List)
 
 	if boardName != "" {
-		fmt.Println("Filter on board name")
-	} else if len(specificBoard) > 2 {
-		go GetCards(specificBoard, actionsChannel)
-		actions = <-actionsChannel
 
-		go GetLists(specificBoard, listsChannel)
-		lists = <-listsChannel
-	} else if index, err := strconv.Atoi(specificBoard); err == nil {
-		boards := GetAllBoards()
-		if index > len(boards) {
+	} else if len(specificBoard) <= 2 {
+		if index, err := strconv.Atoi(specificBoard); err == nil {
+			boards := GetAllBoards()
+			if index > len(boards) {
+				loader.End()
+				fmt.Println(color.RedBold("Numeric short is out of bounds. Check for boards and try again."))
+				os.Exit(1)
+			}
+			specificBoard = boards[index].Id
+		} else {
 			loader.End()
-			fmt.Println(color.RedBold("Short number is out of bounds. Check for boards and try again."))
+			fmt.Println(color.RedBold("Numeric short can't be parsed correctly. Bye bye."))
 			os.Exit(1)
 		}
-
-		fmt.Println("Need to collect all boards first and filter")
-	} else {
-		loader.End()
-		fmt.Println(color.RedBold("Incorrect flags. Pass -h for help."))
-		os.Exit(1)
 	}
+
+	go GetCards(specificBoard, actionsChannel)
+	actions = <-actionsChannel
+
+	go GetLists(specificBoard, listsChannel)
+	lists = <-listsChannel
 
 	var listMap []models.ListMap
 
