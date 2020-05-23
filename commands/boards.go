@@ -1,12 +1,8 @@
 package commands
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 	"text/tabwriter"
@@ -56,7 +52,7 @@ func init() {
 }
 
 func printBoards() {
-	boards := getAllBoards()
+	boards := GetAllBoards()
 
 	loader.End()
 
@@ -97,13 +93,13 @@ func printCards() {
 	if boardName != "" {
 		fmt.Println("Filter on board name")
 	} else if len(specificBoard) > 2 {
-		go getCards(specificBoard, actionsChannel)
+		go GetCards(specificBoard, actionsChannel)
 		actions = <-actionsChannel
 
-		go getLists(specificBoard, listsChannel)
+		go GetLists(specificBoard, listsChannel)
 		lists = <-listsChannel
 	} else if index, err := strconv.Atoi(specificBoard); err == nil {
-		boards := getAllBoards()
+		boards := GetAllBoards()
 		if index > len(boards) {
 			loader.End()
 			fmt.Println(color.RedBold("Short number is out of bounds. Check for boards and try again."))
@@ -120,7 +116,7 @@ func printCards() {
 	var listMap []models.ListMap
 
 	for _, m := range lists {
-		listMap = append(listMap, models.ListMap{Id: m.Id, Name: m.Name, Actions: getCardsForList(actions, m.Id)})
+		listMap = append(listMap, models.ListMap{Id: m.Id, Name: m.Name, Actions: mapCardsToList(actions, m.Id)})
 	}
 
 	loader.End()
@@ -148,7 +144,7 @@ func printCards() {
 	}
 }
 
-func getCardsForList(allActions []models.Action, listId string) []models.Action {
+func mapCardsToList(allActions []models.Action, listId string) []models.Action {
 	var cards []models.Action
 
 	for _, action := range allActions {
@@ -160,88 +156,4 @@ func getCardsForList(allActions []models.Action, listId string) []models.Action 
 	}
 
 	return cards
-}
-
-func getAllBoards() []models.Board {
-	response, error := http.Get(getAllBoardsUrl())
-	if error != nil {
-		fmt.Println("\n@ Failed to get boards from Trello API. Will exit.")
-		os.Exit(1)
-	}
-
-	defer response.Body.Close()
-
-	body, error := ioutil.ReadAll(response.Body)
-	if error != nil {
-		fmt.Println("\n@ Failed to parse boards from Trello API response. Will exit.")
-		os.Exit(1)
-	}
-
-	var boards []models.Board
-	json.Unmarshal(body, &boards)
-	return boards
-}
-
-func getCards(boardId string, result chan []models.Action) {
-	response, error := http.Get(getCardsUrl(boardId))
-
-	if error != nil {
-		fmt.Println("\n@ Failed to get cards from Trello API. Will exit.")
-		os.Exit(1)
-	}
-
-	defer response.Body.Close()
-
-	body, error := ioutil.ReadAll(response.Body)
-	if error != nil {
-		fmt.Println("\n@ Failed to parse cards from Trello API response. Will exit.")
-		os.Exit(1)
-	}
-
-	var actions []models.Action
-	json.Unmarshal(body, &actions)
-
-	result <- actions
-}
-
-func getLists(boardId string, result chan []models.List) {
-	response, error := http.Get(getListsUrl(boardId))
-
-	if error != nil {
-		fmt.Println("\n@ Failed to get cards from Trello API. Will exit.")
-		os.Exit(1)
-	}
-
-	defer response.Body.Close()
-
-	body, error := ioutil.ReadAll(response.Body)
-	if error != nil {
-		fmt.Println("\n@ Failed to parse cards from Trello API response. Will exit.")
-		os.Exit(1)
-	}
-
-	var lists []models.List
-	json.Unmarshal(body, &lists)
-
-	sort.Slice(lists, func(i, j int) bool {
-		return lists[i].Position < lists[j].Position
-	})
-
-	result <- lists
-}
-
-func getAllBoardsUrl() string {
-	return "https://api.trello.com/1/members/me/boards?key=" + trelloKey + "&token=" + trellotoken
-}
-
-func getCardsUrl(boardId string) string {
-	return "https://api.trello.com/1/boards/" + boardId + "/cards?key=" + trelloKey + "&token=" + trellotoken
-}
-
-func getCardUrl(cardId string) string {
-	return "https://api.trello.com/1/cards/" + cardId + "?key=" + trelloKey + "&token=" + trellotoken
-}
-
-func getListsUrl(boardId string) string {
-	return "https://api.trello.com/1/boards/" + boardId + "/lists?key=" + trelloKey + "&token=" + trellotoken
 }
