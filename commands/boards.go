@@ -94,15 +94,27 @@ func printCards() {
 	actionsChannel := make(chan []models.Action)
 	listsChannel := make(chan []models.List)
 
-	if len(specificBoard) > 2 {
+	if boardName != "" {
+		fmt.Println("Filter on board name")
+	} else if len(specificBoard) > 2 {
 		go getCards(specificBoard, actionsChannel)
 		actions = <-actionsChannel
 
 		go getLists(specificBoard, listsChannel)
 		lists = <-listsChannel
-	} else {
+	} else if index, err := strconv.Atoi(specificBoard); err == nil {
+		boards := getAllBoards()
+		if index > len(boards) {
+			loader.End()
+			fmt.Println(color.RedBold("Short number is out of bounds. Check for boards and try again."))
+			os.Exit(1)
+		}
+
 		fmt.Println("Need to collect all boards first and filter")
-		// TODO: boards := getAllBoards()
+	} else {
+		loader.End()
+		fmt.Println(color.RedBold("Incorrect flags. Pass -h for help."))
+		os.Exit(1)
 	}
 
 	var listMap []models.ListMap
