@@ -21,7 +21,6 @@ Optional to store the password on disk aswell if you don't want to be prompted o
 Complete documentation is available at http://github.com/elpulgo/trello`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 
-		setColor()
 		if cmd.Name() == "tre" || cmd.Name() == "credentials" {
 			return
 		}
@@ -42,10 +41,6 @@ func Execute() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-}
-
-func setColor() {
-	fmt.Println(string("\033[32m"))
 }
 
 func createCredentials() {
