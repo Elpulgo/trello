@@ -11,6 +11,7 @@ import (
 	"strings"
 	"text/tabwriter"
 	"trello/credentialsmanager"
+	"trello/loader"
 	"trello/models"
 
 	color "trello/commandColors"
@@ -31,6 +32,7 @@ var boardsCommand = &cobra.Command{
 	Short: "Show all boards for user",
 	Long:  `Show all boards for the user, in alphabetical order with numeric shortkey`,
 	Run: func(cmd *cobra.Command, args []string) {
+		loader.Run()
 		success, trelloKey, trellotoken = credentialsmanager.GetCredentials()
 
 		if !success {
@@ -55,6 +57,8 @@ func init() {
 
 func printBoards() {
 	boards := getAllBoards()
+
+	loader.End()
 
 	const padding = 16
 	writer := tabwriter.NewWriter(os.Stdout, 10, 18, padding, '\t', tabwriter.AlignRight)
@@ -106,6 +110,8 @@ func printCards() {
 	for _, m := range lists {
 		listMap = append(listMap, models.ListMap{Id: m.Id, Name: m.Name, Actions: getCardsForList(actions, m.Id)})
 	}
+
+	loader.End()
 
 	for _, list := range listMap {
 		fmt.Println("## " + list.Name)
