@@ -110,7 +110,7 @@ func printCards() {
 	} else if len(specificBoard) <= 2 {
 		if index, err := strconv.Atoi(specificBoard); err == nil {
 			boards := GetAllBoards()
-			if index > len(boards) {
+			if index > len(boards)-1 {
 				loader.End()
 				fmt.Println(color.RedBold("Numeric short is out of bounds. Check for boards and try again."))
 				os.Exit(1)
@@ -183,12 +183,14 @@ func mapCardsToList(allActions []models.Action, listId string) []models.Action {
 func findBoardByFreeText(freeText string, boards []models.Board) (bool, models.Board, []string) {
 	var suggestions []string
 
+	freeText = strings.ToLower(freeText)
+
 	for _, board := range boards {
-		if board.Name == freeText {
+		if strings.ToLower(board.Name) == freeText {
 			return true, board, []string{}
 		}
 
-		if strings.Index(board.Name, freeText) > -1 {
+		if strings.Index(strings.ToLower(board.Name), freeText) > -1 {
 			suggestions = append(suggestions, board.Name)
 		}
 	}
