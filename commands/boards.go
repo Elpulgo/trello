@@ -27,7 +27,7 @@ var (
 var boardsCommand = &cobra.Command{
 	Use:   "boards",
 	Short: "Show all boards for user",
-	Long:  `Show all boards for the user, in alphabetical order with numeric shortkey`,
+	Long:  `Show all boards for the user, with numeric shortkey, name and id.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		loader.Run()
 		success, trelloKey, trellotoken = credentialsmanager.GetCredentials()
@@ -48,7 +48,7 @@ var boardsCommand = &cobra.Command{
 func init() {
 	boardsCommand.Flags().StringVarP(&specificBoard, "board", "b", "", "Show cards on a specific board, specified with either # or id.")
 	boardsCommand.Flags().StringVarP(&boardName, "name", "n", "", "Show cards on a specific board, specified with a name.")
-	boardsCommand.Flags().StringVarP(&listName, "listname", "l", "", "Show cards on a specific board, for a specific list.")
+	boardsCommand.Flags().StringVarP(&listName, "listname", "l", "", "Pass listname, for a specific list. Must be combined with -b/-n")
 
 	rootCmd.AddCommand(boardsCommand)
 }
