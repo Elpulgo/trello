@@ -18,6 +18,7 @@ import (
 var (
 	specificBoard string
 	boardName     string
+	listName      string
 	trelloKey     string
 	trellotoken   string
 	success       bool
@@ -47,6 +48,7 @@ var boardsCommand = &cobra.Command{
 func init() {
 	boardsCommand.Flags().StringVarP(&specificBoard, "board", "b", "", "Show cards on a specific board, specified with either # or id.")
 	boardsCommand.Flags().StringVarP(&boardName, "name", "n", "", "Show cards on a specific board, specified with a name.")
+	boardsCommand.Flags().StringVarP(&listName, "listname", "l", "", "Show cards on a specific board, for a specific list.")
 
 	rootCmd.AddCommand(boardsCommand)
 }
@@ -126,7 +128,7 @@ func printCards() {
 	go GetCards(specificBoard, actionsChannel)
 	actions = <-actionsChannel
 
-	go GetLists(specificBoard, listsChannel)
+	go GetLists(specificBoard, listName, listsChannel)
 	lists = <-listsChannel
 
 	if len(lists) < 1 {
@@ -144,8 +146,8 @@ func printCards() {
 	loader.End()
 
 	for _, list := range listMap {
-		fmt.Println("## " + list.Name)
-		divider := strings.Repeat("=", len(list.Name)+3)
+		fmt.Println(color.GreenBold(list.Name))
+		divider := strings.Repeat(color.GreenBold("-"), len(list.Name)+3)
 		fmt.Print(divider)
 		fmt.Println("")
 
@@ -159,7 +161,7 @@ func printCards() {
 				commentsString = "(*" + strconv.Itoa(action.Badge.Comments) + ")"
 			}
 
-			fmt.Println("{" + action.Id + "}  " + commentsString + "\t" + action.Name)
+			fmt.Println("{" + color.Yellow(action.Id) + "}  " + commentsString + "\t" + color.Cyan(action.Name))
 		}
 
 		fmt.Println("")
