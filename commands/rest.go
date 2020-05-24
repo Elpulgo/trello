@@ -7,6 +7,9 @@ import (
 	"net/http"
 	"os"
 	"sort"
+	"strings"
+	color "trello/commandColors"
+	"trello/loader"
 	"trello/models"
 )
 
@@ -52,7 +55,7 @@ func GetCards(boardId string, result chan []models.Action) {
 	result <- actions
 }
 
-func GetLists(boardId string, result chan []models.List) {
+func GetLists(boardId string, filter string, result chan []models.List) {
 	response, error := http.Get(getListsUrl(boardId))
 
 	if error != nil {
@@ -71,11 +74,28 @@ func GetLists(boardId string, result chan []models.List) {
 	var lists []models.List
 	json.Unmarshal(body, &lists)
 
+	if filter != "" {
+		lists = filterLists(lists, filter)
+	}
+
 	sort.Slice(lists, func(i, j int) bool {
 		return lists[i].Position < lists[j].Position
 	})
 
 	result <- lists
+}
+
+func filterLists(values []models.List, value string) []models.List {
+	for _, list := range values {
+		if strings.ToLower(list.Name) == strings.ToLower(value) {
+			return []models.List{list}
+		}
+	}
+
+	loader.End()
+	fmt.Println(color.YellowBold("Didn't find list '" + value + "'. Bye bye."))
+	os.Exit(1)
+	return []models.List{}
 }
 
 func getAllBoardsUrl() string {
