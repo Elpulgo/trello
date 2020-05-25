@@ -29,10 +29,11 @@ var boardsCommand = &cobra.Command{
 	Short: "Show all boards for user",
 	Long:  `Show all boards for the user, with numeric shortkey, name and id.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		loader.Run()
 		success, trelloKey, trellotoken = credentialsmanager.GetCredentials()
+		loader.Run()
 
 		if !success {
+			loader.End()
 			fmt.Println("Failed to get credentials. Bye bye.")
 			return
 		}

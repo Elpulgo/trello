@@ -11,12 +11,14 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	color "trello/commandColors"
 )
 
 var (
-	keyFilename        = "key.dat"
-	tokenFilename      = "token.dat"
-	passphraseFilename = "pass.dat"
+	keyFilename             = "key.dat"
+	tokenFilename           = "token.dat"
+	passphraseFilename      = "pass.dat"
+	authenticatedPassphrase string
 )
 
 func PersistCredentials(key string, token string, passphrase string) {
@@ -43,8 +45,14 @@ func GetCredentials() (bool, string, string) {
 	var token string
 
 	if !fileExists(passphraseFilename) {
+
+		if authenticatedPassphrase != "" {
+			_ = readCredentials(&key, &token, authenticatedPassphrase)
+			return true, key, token
+		}
+
 		var passwordSuccess bool = false
-		fmt.Println("@ Enter passphrase.")
+		fmt.Println(color.Yellow("@ Enter passphrase."))
 
 		for !passwordSuccess {
 			_, err := fmt.Scan(&passphrase)
@@ -54,16 +62,17 @@ func GetCredentials() (bool, string, string) {
 
 			success := readCredentials(&key, &token, passphrase)
 			if !success {
-				fmt.Println("@ Wrong passphrase, try again.")
+				fmt.Println(color.Red("@ Wrong passphrase, try again."))
 				continue
 			}
 
 			passwordSuccess = success
+			authenticatedPassphrase = passphrase
 		}
 	} else {
 		success := getPassphrase(&passphrase)
 		if !success {
-			fmt.Println("@ Failed to get stored passphrase from file pass.dat")
+			fmt.Println(color.RedBold("@ Failed to get stored passphrase from file pass.dat"))
 			os.Exit(1)
 		}
 
