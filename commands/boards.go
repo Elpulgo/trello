@@ -147,7 +147,7 @@ func printCards() {
 
 	for _, list := range listMap {
 		fmt.Println(color.GreenBold(list.Name))
-		divider := strings.Repeat(color.GreenBold("-"), len(list.Name)+3)
+		divider := strings.Repeat(color.GreenBold("-"), len(list.Name))
 		fmt.Print(divider)
 		fmt.Println("")
 
@@ -161,7 +161,8 @@ func printCards() {
 				commentsString = "(*" + strconv.Itoa(action.Badge.Comments) + ")"
 			}
 
-			fmt.Println("{" + color.Yellow(action.Id) + "}  " + commentsString + "\t" + color.Cyan(action.Name))
+			actionName := strings.Replace(action.Name, "\n", "\t\t", -1)
+			fmt.Println("{" + color.Yellow(action.Id) + "}  " + commentsString + "\t" + color.Cyan(actionName))
 		}
 
 		fmt.Println("")
