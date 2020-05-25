@@ -83,7 +83,7 @@ func printBoards() {
 			"[%s]\t\t%s\t{%s}\t\n",
 			color.Yellow("# "+strconv.Itoa(index)),
 			color.Cyan(board.Name),
-			color.GreenBold(board.Id))
+			color.DarkGreyBold(board.Id))
 	}
 }
 
@@ -145,9 +145,10 @@ func printCards() {
 	}
 
 	loader.End()
-
+	fmt.Println("")
 	for _, list := range listMap {
 		fmt.Println(color.GreenBold(list.Name))
+		fmt.Println("{" + color.DarkGrey(list.Id) + "}")
 		divider := strings.Repeat(color.GreenBold("-"), len(list.Name))
 		fmt.Print(divider)
 		fmt.Println("")
