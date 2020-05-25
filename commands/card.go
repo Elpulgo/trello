@@ -43,7 +43,9 @@ var cardCommand = &cobra.Command{
 }
 
 func init() {
-	cardCommand.Flags().StringVarP(&cardId, "id", "c", "", "Card Id, required.")
+	cardCommand.Flags().StringVarP(&cardId, "id", "c", "", "(*) Card Id, required.")
+	cardCommand.Flags().StringVarP(&cardId, "add", "a", "", "Add card. Title and ListId is required.")
+
 	rootCmd.AddCommand(cardCommand)
 	credentialsCommand.MarkFlagRequired("id")
 }
