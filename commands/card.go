@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	color "trello/commandColors"
 	"trello/credentialsmanager"
+	"trello/loader"
 	"trello/models"
 
 	"github.com/spf13/cobra"
@@ -22,13 +24,16 @@ var cardCommand = &cobra.Command{
 	Short: "Show specific info for card",
 	Long:  `Show specific info for card`,
 	Run: func(cmd *cobra.Command, args []string) {
+		loader.Run()
 		success, trelloKey, trellotoken = credentialsmanager.GetCredentials()
 
 		if !success {
+			loader.End()
 			os.Exit(1)
 		}
 
 		if cardId == "" {
+			loader.End()
 			fmt.Println("Card id can't be empty. Specify a card id.")
 			os.Exit(1)
 		}
@@ -50,17 +55,24 @@ func printCard() {
 	comments = <-commentsChannel
 
 	if len(comments) < 1 {
+		loader.End()
 		fmt.Println("No comments found for card. Bye bye.")
 		return
 	}
 
-	fmt.Println("## " + comments[0].Data.Card.Name)
-	divider := strings.Repeat("=", len(comments[0].Data.Card.Name)+3)
+	loader.End()
+
+	fmt.Println("")
+	fmt.Println(color.GreenBold(comments[0].Data.Card.Name))
+	divider := strings.Repeat(color.GreenBold("-"), len(comments[0].Data.Card.Name)-2)
 	fmt.Print(divider)
 	fmt.Println("")
 
 	for _, comment := range comments {
-		fmt.Println("\t- " + comment.Data.Text)
+		commentText := strings.Replace(comment.Data.Text, "\n", "\n\t", -1)
+		commentText = strings.Replace(commentText, "\r", "\n\t", -1)
+		fmt.Println(color.YellowBold("{} ") + color.Cyan(commentText))
+		fmt.Println("")
 	}
 }
 
