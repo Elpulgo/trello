@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"os"
+	color "trello/commandColors"
 	"trello/credentialsmanager"
 
 	"github.com/spf13/cobra"
@@ -49,24 +50,24 @@ func createCredentials() {
 	var storePassphrase string
 	var passphrase string
 
-	fmt.Println("\n@ Credentials for Trello API not stored. Paste your Trello API key.")
+	fmt.Println(color.Yellow("\n@ Credentials for Trello API not stored. Paste your Trello API key."))
 
 	_, err := fmt.Scan(&key)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	fmt.Println("\n@ Paste your Trello API token.")
+	fmt.Println(color.Yellow("\n@ Paste your Trello API token."))
 
 	_, err = fmt.Scan(&token)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	fmt.Println(`
+	fmt.Println(color.Yellow(`
 @ A password is required to access the Trello API credentials. 
   Would you like to store this password? (y/n)
-  (Else you will be prompted each time for the password.)`)
+  (Else you will be prompted each time for the password.)`))
 
 	_, err = fmt.Scan(&storePassphrase)
 	if err != nil {
@@ -74,14 +75,14 @@ func createCredentials() {
 	}
 
 	if storePassphrase == "y" || storePassphrase == "Y" {
-		fmt.Println("\n@ Enter passphrase to persist on disk (Will be saved in 'pass.dat')")
+		fmt.Println(color.YellowBold("\n@ Enter passphrase to persist on disk (Will be saved in 'pass.dat')"))
 		_, err = fmt.Scan(&passphrase)
 		if err != nil {
 			panic(err.Error())
 		}
 		credentialsmanager.PersistPassphrase(passphrase)
 	} else {
-		fmt.Println("\n@ Enter passphrase to encrypt credentials. Note! This won't be saved so remember your passphrase!")
+		fmt.Println(color.YellowBold("\n@ Enter passphrase to encrypt credentials. Note! This won't be saved so remember your passphrase!"))
 		_, err = fmt.Scan(&passphrase)
 		if err != nil {
 			panic(err.Error())

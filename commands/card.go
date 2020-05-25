@@ -24,13 +24,13 @@ var cardCommand = &cobra.Command{
 	Short: "Show specific info for card",
 	Long:  `Show specific info for card`,
 	Run: func(cmd *cobra.Command, args []string) {
-		loader.Run()
 		success, trelloKey, trellotoken = credentialsmanager.GetCredentials()
 
 		if !success {
-			loader.End()
 			os.Exit(1)
 		}
+
+		loader.Run()
 
 		if cardId == "" {
 			loader.End()

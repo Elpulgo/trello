@@ -2,7 +2,9 @@ package commands
 
 import (
 	"fmt"
+	color "trello/commandColors"
 	"trello/credentialsmanager"
+	"trello/loader"
 
 	"github.com/spf13/cobra"
 )
@@ -32,11 +34,12 @@ The password can be saved encoded in a file if you don't wan't to be prompted ea
 	Run: func(cmd *cobra.Command, args []string) {
 		if storepassphrase == "y" || storepassphrase == "Y" {
 			credentialsmanager.PersistPassphrase(passphrase)
-			fmt.Println("@ Passphrase saved.")
+			fmt.Println(color.GreenBold("@ Passphrase saved."))
 		}
-
+		loader.Run()
 		credentialsmanager.PersistCredentials(key, token, passphrase)
-		fmt.Println("@ Credentials saved.")
+		loader.End()
+		fmt.Println(color.GreenBold("@ Credentials saved."))
 	},
 }
 
