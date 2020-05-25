@@ -35,3 +35,11 @@ func Cyan(value string) string {
 func CyanBold(value string) string {
 	return color.Style{color.FgCyan, color.OpBold}.Render(value)
 }
+
+func DarkGrey(value string) string {
+	return color.FgDarkGray.Render(value)
+
+}
+func DarkGreyBold(value string) string {
+	return color.Style{color.FgDarkGray, color.OpBold}.Render(value)
+}
