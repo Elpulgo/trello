@@ -19,11 +19,13 @@ var (
 	tokenFilename           = "token.dat"
 	passphraseFilename      = "pass.dat"
 	authenticatedPassphrase string
+	key                     string
+	token                   string
 )
 
-func PersistCredentials(key string, token string, passphrase string) {
-	encryptedKey := encrypt(key, passphrase)
-	encryptedToken := encrypt(token, passphrase)
+func PersistCredentials(inputKey string, inputToken string, passphrase string) {
+	encryptedKey := encrypt(inputKey, passphrase)
+	encryptedToken := encrypt(inputToken, passphrase)
 
 	fileKey, _ := os.Create(keyFilename)
 	defer fileKey.Close()
@@ -32,6 +34,9 @@ func PersistCredentials(key string, token string, passphrase string) {
 	fileToken, _ := os.Create(tokenFilename)
 	defer fileToken.Close()
 	fileToken.Write(encryptedToken)
+
+	key = inputKey
+	token = inputToken
 }
 
 func GetCredentials() (bool, string, string) {
@@ -41,13 +46,9 @@ func GetCredentials() (bool, string, string) {
 	}
 
 	var passphrase string
-	var key string
-	var token string
 
 	if !fileExists(passphraseFilename) {
-
-		if authenticatedPassphrase != "" {
-			_ = readCredentials(&key, &token, authenticatedPassphrase)
+		if key != "" && token != "" {
 			return true, key, token
 		}
 
@@ -76,7 +77,11 @@ func GetCredentials() (bool, string, string) {
 			os.Exit(1)
 		}
 
-		readCredentials(&key, &token, passphrase)
+		successRead := readCredentials(&key, &token, passphrase)
+		if !successRead {
+			fmt.Println(color.RedBold("@ Failed to read credentials with stored passphrase. Set credentials again with 'credentials' command."))
+			os.Exit(1)
+		}
 	}
 
 	return true, key, token
