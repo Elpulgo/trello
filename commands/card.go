@@ -1,10 +1,7 @@
 package commands
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"os"
 	"strings"
 	color "trello/commandColors"
@@ -51,55 +48,38 @@ func init() {
 }
 
 func printCard() {
+	var card models.Card
 	var comments []models.Comment
-	commentsChannel := make(chan []models.Comment)
-	go getComments(cardId, commentsChannel)
-	comments = <-commentsChannel
 
-	if len(comments) < 1 {
-		loader.End()
-		fmt.Println("No comments found for card. Bye bye.")
-		return
-	}
+	commentsChannel := make(chan []models.Comment)
+	cardChannel := make(chan models.Card)
+
+	go GetComments(cardId, commentsChannel)
+	go GetCard(cardId, cardChannel)
+
+	card = <-cardChannel
+	comments = <-commentsChannel
 
 	loader.End()
 
 	fmt.Println("")
-	fmt.Println(color.GreenBold(comments[0].Data.Card.Name))
-	divider := strings.Repeat(color.GreenBold("-"), len(comments[0].Data.Card.Name)-2)
+	fmt.Println(color.GreenBold(card.Name) + " {" + color.Yellow(card.Id) + "}")
+
+	if card.Description != "" {
+		fmt.Println(color.DarkGrey(card.Description))
+	}
+
+	divider := strings.Repeat(color.GreenBold("-"), len(card.Name)-2)
 	fmt.Print(divider)
 	fmt.Println("")
 
 	for _, comment := range comments {
+		if comment.Data.Text == "" {
+			continue
+		}
 		commentText := strings.Replace(comment.Data.Text, "\n", "\n\t", -1)
 		commentText = strings.Replace(commentText, "\r", "\n\t", -1)
 		fmt.Println(color.YellowBold("{} ") + color.Cyan(commentText))
 		fmt.Println("")
 	}
-}
-
-func getComments(cardId string, result chan []models.Comment) {
-	response, error := http.Get(getActionUrl(cardId))
-
-	if error != nil {
-		fmt.Println("\n@ Failed to get card from Trello API. Will exit.")
-		os.Exit(1)
-	}
-
-	defer response.Body.Close()
-
-	body, error := ioutil.ReadAll(response.Body)
-	if error != nil {
-		fmt.Println("\n@ Failed to parse card from Trello API response. Will exit.")
-		os.Exit(1)
-	}
-
-	var comments []models.Comment
-	json.Unmarshal(body, &comments)
-
-	result <- comments
-}
-
-func getActionUrl(cardId string) string {
-	return "https://api.trello.com/1/cards/" + cardId + "/actions?fields=type,data&key=" + trelloKey + "&token=" + trellotoken
 }
