@@ -17,7 +17,7 @@ var (
 )
 
 var addCardCommand = &cobra.Command{
-	Use:   "add-c",
+	Use:   "add",
 	Short: "Add a new card to a specified list.",
 	Long: `Add a new card to a specified list.
 Requires listid and title.`,
@@ -47,7 +47,7 @@ func init() {
 	addCardCommand.Flags().StringVarP(&listId, "listId", "l", "", "(*) List id. The list the card should belong to.")
 	addCardCommand.Flags().StringVarP(&description, "description", "d", "", "Description for the card.")
 
-	rootCmd.AddCommand(addCardCommand)
+	cardCommand.AddCommand(addCardCommand)
 	credentialsCommand.MarkFlagRequired("title")
 	credentialsCommand.MarkFlagRequired("listId")
 }
