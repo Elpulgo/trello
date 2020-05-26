@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -16,7 +17,7 @@ import (
 func GetAllBoards() []models.Board {
 	response, error := http.Get(getAllBoardsUrl())
 	if error != nil {
-		fmt.Println("\n@ Failed to get boards from Trello API. Will exit.")
+		fmt.Println(color.RedBold("\n@ Failed to get boards from Trello API. Bye bye."))
 		os.Exit(1)
 	}
 
@@ -24,7 +25,7 @@ func GetAllBoards() []models.Board {
 
 	body, error := ioutil.ReadAll(response.Body)
 	if error != nil {
-		fmt.Println("\n@ Failed to parse boards from Trello API response. Will exit.")
+		fmt.Println(color.RedBold("\n@ Failed to parse boards from Trello API response. Bye bye."))
 		os.Exit(1)
 	}
 
@@ -37,7 +38,7 @@ func GetCards(boardId string, result chan []models.Action) {
 	response, error := http.Get(getCardsUrl(boardId))
 
 	if error != nil {
-		fmt.Println("\n@ Failed to get cards from Trello API. Will exit.")
+		fmt.Println(color.RedBold("\n@ Failed to get cards from Trello API. Bye bye."))
 		os.Exit(1)
 	}
 
@@ -45,7 +46,7 @@ func GetCards(boardId string, result chan []models.Action) {
 
 	body, error := ioutil.ReadAll(response.Body)
 	if error != nil {
-		fmt.Println("\n@ Failed to parse cards from Trello API response. Will exit.")
+		fmt.Println(color.RedBold("\n@ Failed to parse cards from Trello API response. Bye bye."))
 		os.Exit(1)
 	}
 
@@ -59,7 +60,7 @@ func GetLists(boardId string, filter string, result chan []models.List) {
 	response, error := http.Get(getListsUrl(boardId))
 
 	if error != nil {
-		fmt.Println("\n@ Failed to get cards from Trello API. Will exit.")
+		fmt.Println(color.RedBold("\n@ Failed to get cards from Trello API. Bye bye."))
 		os.Exit(1)
 	}
 
@@ -67,7 +68,7 @@ func GetLists(boardId string, filter string, result chan []models.List) {
 
 	body, error := ioutil.ReadAll(response.Body)
 	if error != nil {
-		fmt.Println("\n@ Failed to parse cards from Trello API response. Will exit.")
+		fmt.Println(color.RedBold("\n@ Failed to parse cards from Trello API response. Bye bye."))
 		os.Exit(1)
 	}
 
@@ -83,6 +84,37 @@ func GetLists(boardId string, filter string, result chan []models.List) {
 	})
 
 	result <- lists
+}
+
+func AddCard(title string, listId string, description string) {
+	payload := map[string]string{"name": title, "idList": listId, "desc": description}
+	jsonPayload, _ := json.Marshal(payload)
+
+	response, error := http.Post(
+		getAddCardUrl(),
+		"application/json",
+		bytes.NewBuffer(jsonPayload))
+
+	if error != nil {
+		fmt.Println(color.RedBold("\nFailed to add cards from Trello API. Bye bye."))
+		os.Exit(1)
+	}
+
+	defer response.Body.Close()
+
+	body, error := ioutil.ReadAll(response.Body)
+	if error != nil {
+		fmt.Println(color.RedBold("\nFailed to parse response from Trello API response. Bye bye."))
+		os.Exit(1)
+	}
+
+	var card models.Card
+	if err := json.Unmarshal(body, &card); err != nil {
+		fmt.Println(color.RedBold("\nSuccessfully added card but failed to read response. Bye bye."))
+		os.Exit(1)
+	}
+
+	fmt.Println(color.GreenBold("Successfully added card with id: ") + "{" + color.Yellow(card.Id) + "}")
 }
 
 func filterLists(values []models.List, value string) []models.List {
@@ -112,4 +144,8 @@ func getCardUrl(cardId string) string {
 
 func getListsUrl(boardId string) string {
 	return "https://api.trello.com/1/boards/" + boardId + "/lists?key=" + trelloKey + "&token=" + trellotoken
+}
+
+func getAddCardUrl() string {
+	return "https://api.trello.com/1/cards?pos=bottom" + "&key=" + trelloKey + "&token=" + trellotoken
 }
