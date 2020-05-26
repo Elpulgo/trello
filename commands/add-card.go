@@ -32,12 +32,13 @@ Requires listid and title.`,
 
 		if title == "" || listId == "" {
 			loader.End()
-			fmt.Println(color.RedBold("Title and list id are required and can't be empty."))
+			fmt.Println(color.RedBold("Title and list id are required and can't be empty. Bye bye."))
 			os.Exit(1)
 		}
 
 		loader.End()
-		fmt.Println("Hello add card! " + title + " - " + listId)
+
+		AddCard(title, listId, description)
 	},
 }
 
@@ -50,7 +51,3 @@ func init() {
 	credentialsCommand.MarkFlagRequired("title")
 	credentialsCommand.MarkFlagRequired("listId")
 }
-
-// func addCardUrl(cardId string) string {
-// 	return "https://api.trello.com/1/cards/" + cardId + "/actions?fields=type,data&key=" + trelloKey + "&token=" + trellotoken
-// }
