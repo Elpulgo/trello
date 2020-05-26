@@ -161,6 +161,31 @@ func AddCard(title string, listId string, description string) {
 	fmt.Println(color.GreenBold("Successfully added card with id: ") + "{" + color.Yellow(card.Id) + "}")
 }
 
+func AddComment(comment string, cardId string) {
+	payload := map[string]string{"text": comment, "id": cardId}
+	jsonPayload, _ := json.Marshal(payload)
+
+	response, error := http.Post(
+		getAddCommentUrl(cardId),
+		"application/json",
+		bytes.NewBuffer(jsonPayload))
+
+	if error != nil {
+		fmt.Println(color.RedBold("\nFailed to add comment from Trello API. Bye bye."))
+		os.Exit(1)
+	}
+
+	defer response.Body.Close()
+
+	_, error = ioutil.ReadAll(response.Body)
+	if error != nil {
+		fmt.Println(color.RedBold("\nFailed to parse response from Trello API response. Bye bye."))
+		os.Exit(1)
+	}
+
+	fmt.Println(color.GreenBold("Successfully added comment to card with id: ") + "{" + color.Yellow(cardId) + "}")
+}
+
 func filterLists(values []models.List, value string) []models.List {
 	for _, list := range values {
 		if strings.ToLower(list.Name) == strings.ToLower(value) {
@@ -192,6 +217,10 @@ func getListsUrl(boardId string) string {
 
 func getAddCardUrl() string {
 	return "https://api.trello.com/1/cards?pos=bottom" + "&key=" + trelloKey + "&token=" + trellotoken
+}
+
+func getAddCommentUrl(cardId string) string {
+	return "https://api.trello.com/1/cards/" + cardId + "/actions/comments?key=" + trelloKey + "&token=" + trellotoken
 }
 
 func getActionUrl(cardId string) string {
