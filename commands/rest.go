@@ -224,5 +224,5 @@ func getAddCommentUrl(cardId string) string {
 }
 
 func getActionUrl(cardId string) string {
-	return "https://api.trello.com/1/cards/" + cardId + "/actions?fields=type,data&key=" + trelloKey + "&token=" + trellotoken
+	return "https://api.trello.com/1/cards/" + cardId + "/actions?fields=type,data,memberCreator,date&key=" + trelloKey + "&token=" + trellotoken
 }

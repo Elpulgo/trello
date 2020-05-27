@@ -77,9 +77,16 @@ func printCard() {
 		if comment.Data.Text == "" {
 			continue
 		}
+
 		commentText := strings.Replace(comment.Data.Text, "\n", "\n\t", -1)
 		commentText = strings.Replace(commentText, "\r", "\n\t", -1)
-		fmt.Println(color.YellowBold("{} ") + color.Cyan(commentText))
+		fmt.Println(
+			"[" +
+				color.Green(comment.Member.FullName) +
+				color.DarkGreyBold(" @ ") +
+				color.Yellow(comment.Date.Format("2006-01-02 15:12")) +
+				"]\n\n" +
+				color.Cyan(commentText))
 		fmt.Println("")
 	}
 }

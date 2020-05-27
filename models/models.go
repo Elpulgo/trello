@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type Board struct {
 	Name string `json:"name"`
 	Id   string `json:"id"`
@@ -30,13 +32,21 @@ type ListMap struct {
 }
 
 type Comment struct {
-	Type string `json:"type"`
-	Data Data   `json:"data"`
+	Type   string    `json:"type"`
+	Data   Data      `json:"data"`
+	Date   time.Time `json:"date"`
+	Member Member    `json:"memberCreator"`
 }
 
 type Data struct {
 	Text string `json:"text"`
 	Card Card   `json:"card"`
+}
+
+type Member struct {
+	Id       string `json:"id"`
+	UserName string `json:"username"`
+	FullName string `json:"fullName"`
 }
 
 type Card struct {
