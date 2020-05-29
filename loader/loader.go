@@ -13,7 +13,7 @@ var (
 func Run() {
 	commandLoader = spinner.New(spinner.CharSets[36], 50*time.Millisecond)
 	commandLoader.Start()
-	time.Sleep(1 * time.Second)
+	time.Sleep(200 * time.Millisecond)
 }
 
 func End() {
