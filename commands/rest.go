@@ -56,6 +56,36 @@ func GetCards(boardId string, result chan []models.Action) {
 	result <- actions
 }
 
+func MoveCard(cardId string, newListId string) {
+
+	request, error := http.NewRequest(
+		http.MethodPut,
+		getMoveCardUrl(cardId, newListId),
+		bytes.NewBuffer(nil))
+
+	if error != nil {
+		fmt.Println(color.RedBold("\n@ Failed to create new move card request from Trello API. Bye bye."))
+		os.Exit(1)
+	}
+
+	response, error := http.DefaultClient.Do(request)
+
+	if error != nil {
+		fmt.Println(color.RedBold("\n@ Failed to move card from Trello API. Bye bye."))
+		os.Exit(1)
+	}
+
+	defer response.Body.Close()
+
+	body, error := ioutil.ReadAll(response.Body)
+	if error != nil {
+		fmt.Println(color.RedBold("\n@ Failed to parse card from Trello API response. Bye bye."))
+		os.Exit(1)
+	}
+
+	fmt.Println(string(body))
+}
+
 func GetCard(cardId string, result chan models.Card) {
 	response, error := http.Get(getCardUrl(cardId))
 
@@ -217,6 +247,10 @@ func getListsUrl(boardId string) string {
 
 func getAddCardUrl() string {
 	return "https://api.trello.com/1/cards?pos=bottom" + "&key=" + trelloKey + "&token=" + trellotoken
+}
+
+func getMoveCardUrl(cardId string, newListId string) string {
+	return "https://api.trello.com/1/cards/" + cardId + "?idList=" + newListId + "&key=" + trelloKey + "&token=" + trellotoken
 }
 
 func getAddCommentUrl(cardId string) string {
