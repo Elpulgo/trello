@@ -22,4 +22,4 @@ jobs:
             platforms: 'linux/amd64, darwin/amd64, windows/amd64'
             name: 'tre'
             compress: 'true'
-            dest: 'build'
+            dest: 'models'
