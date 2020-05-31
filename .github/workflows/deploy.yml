@@ -1,10 +1,25 @@
-- name: go-cross-build
-  uses: thatisuday/go-cross-build@v1
-  with:
-    platforms: linux/amd64, darwin/amd64, windows/amd64
-    package: # optional, default is 
-    # Compress each build file inside a ".tar.gz" archive.
-    compress: true
-    # Binary executable filename and filenames prefix for the build files.
-    name: tre
-    dest: # optional, default is build
+# workflow name
+name: Generate release-artifacts
+
+# on events
+on: 
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# workflow tasks
+jobs:
+  generate:
+    name: Generate cross-platform builds
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Generate build files
+        uses: thatisuday/go-cross-build@v1
+        with:
+            platforms: 'linux/amd64, darwin/amd64, windows/amd64'
+            name: 'tre'
+            compress: 'true'
+            dest: 'build'
