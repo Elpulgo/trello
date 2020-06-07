@@ -17,7 +17,8 @@ type Action struct {
 }
 
 type Badge struct {
-	Comments int `json:"comments"`
+	Comments    int `json:"comments"`
+	Attachments int `json:"attachments"`
 }
 
 type List struct {

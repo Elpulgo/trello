@@ -159,9 +159,17 @@ func printCards() {
 				continue
 			}
 
-			commentsString := "     "
+			commentsString := ""
 			if action.Badge.Comments > 0 {
-				commentsString = "(*" + strconv.Itoa(action.Badge.Comments) + ")"
+				commentsString = "[C* " + strconv.Itoa(action.Badge.Comments) + "]"
+			} else {
+				commentsString = "        "
+			}
+
+			if action.Badge.Attachments > 0 {
+				commentsString = commentsString + " (A* " + strconv.Itoa(action.Badge.Attachments) + ")"
+			} else {
+				commentsString = commentsString + "        "
 			}
 
 			actionName := strings.Replace(action.Name, "\n", "\t\t", -1)
