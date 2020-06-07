@@ -15,9 +15,9 @@ import (
 )
 
 var (
-	keyFilename             = "key.dat"
-	tokenFilename           = "token.dat"
-	passphraseFilename      = "pass.dat"
+	keyFilename             = "tre-key.dat"
+	tokenFilename           = "tre-token.dat"
+	passphraseFilename      = "tre-pass.dat"
 	authenticatedPassphrase string
 	key                     string
 	token                   string
