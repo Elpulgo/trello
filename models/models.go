@@ -3,8 +3,9 @@ package models
 import "time"
 
 type Board struct {
-	Name string `json:"name"`
-	Id   string `json:"id"`
+	Name     string `json:"name"`
+	Id       string `json:"id"`
+	ShortUrl string `json:"shortUrl"`
 }
 
 type Action struct {
