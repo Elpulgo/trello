@@ -80,10 +80,11 @@ func printBoards() {
 	for index, board := range boards {
 		fmt.Fprintf(
 			writer,
-			"[%s]\t\t%s\t{%s}\t\n",
+			"[%s]\t\t%s\t{%s}\t{%s}\n",
 			color.Yellow("# "+strconv.Itoa(index)),
 			color.Cyan(board.Name),
-			color.DarkGreyBold(board.Id))
+			color.DarkGreyBold(board.Id),
+			color.DarkGrey(board.ShortUrl))
 	}
 }
 
