@@ -6,6 +6,7 @@ Show boards, lists, cards, comments from your Trello board. Requires an ApiKey a
 
 ## Features
  + List all boards for user, owned aswell as shared.
+ + Add, move and comment on single card
  + Persist Trello ApiKey and Token with a password.
  + Optionally store the password for a seamless use of the CLI. 
    Password is otherwise required for each command.
@@ -32,6 +33,26 @@ $ tre boards -b 2
 ```
 $ tre card -c 5efc3a17f7910117f0e3b88b
 ```
++ `boards`
+    + `-b / --board`
+      + Show cards on a specific board, specified with either # or id.
+    + `-l / --listname`
+      +  Pass listname, for a specific list. Must be combined with -b/-n
+    + `-n / --name`
+      + Show cards on a specific board, specified with a name.
+
++ `card`
+    + `-c / --id`
+      + (*) Card Id, required.
+    + `add`
+    + `comment`
+    + `move`
+    
++ `credentials`
+    + `-p / --passphrase`
+
++ `help / -h`
+  + Help command, can be executed with any command.
 
 ## Installation
 
