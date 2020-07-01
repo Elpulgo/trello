@@ -33,4 +33,12 @@ $ tre boards -b 2
 $ tre card -c 5efc3a17f7910117f0e3b88b
 ```
 
+## Installation
+
+## Future functionality
+  + Trello link to card/member
+  + Attachments link on cards
+  + Badges, showing different colors
+  + Checklist on card
+
 
