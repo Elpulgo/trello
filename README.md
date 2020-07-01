@@ -45,16 +45,41 @@ $ tre card -c 5efc3a17f7910117f0e3b88b
     + `-c / --id`
       + (*) Card Id, required.
     + `add`
+      + `-d / --description`
+        + Description for the card.
+      + `-l / --listid`
+        + (*) List id. The list the card should belong to.
+      + `-t / --title`
+        + (*) Title of the card.
     + `comment`
+      + `-i / --cardid`
+        + (*) Card id. The card the comment should belong to.
+      + `-c / --comment`
+        + Comment.
     + `move`
+      + `-c / --cardid`
+        + (*) Id of the card, required.
+      + `-l / --listid`
+        + (*) List id. The list the card should be moved to.
     
 + `credentials`
     + `-p / --passphrase`
+      + (*) Passphrase for API credentials.
+    + `-s / --store`
+      + Should store passphrase in 'pass.dat' (y/n)
+    + `-k / --trello-key`
+      + (*) Trello API key.
+    + `-t / --trello-token`
+      + (*) Trello API token.
 
 + `help / -h`
   + Help command, can be executed with any command.
 
 ## Installation
++ Linux `$ curl "https://raw.githubusercontent.com/Elpulgo/trello/master/install/install.sh" | bash`
++ Windows <a href="https://github.com/Elpulgo/trello/releases/download/v0.1.3/tre-windows-amd64.tar.gz">.tar.gz for Windows</a>
+
+## Screen
 
 ## Future functionality
   + Trello link to card/member
