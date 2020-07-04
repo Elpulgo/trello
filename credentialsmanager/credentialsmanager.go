@@ -11,6 +11,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+       "path"
         "path/filepath"
 	color "trello/commandColors"
 )
@@ -90,7 +91,7 @@ func GetCredentials() (bool, string, string) {
 
 func readCredentials(key *string, token *string, passphrase string) bool {
 
-	dataKey, err := ioutil.ReadFile(buiödFilePath(keyFilename))
+	dataKey, err := ioutil.ReadFile(buildFilePath(keyFilename))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -188,5 +189,5 @@ func buildFilePath(fileName string) string {
                panic(err.Error())
         }
 
-       return path.Join(filePath.Dir(ex), fileName)
+       return path.Join(filepath.Dir(ex), fileName)
 }
