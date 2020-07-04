@@ -77,13 +77,11 @@ func MoveCard(cardId string, newListId string) {
 
 	defer response.Body.Close()
 
-	body, error := ioutil.ReadAll(response.Body)
-	if error != nil {
+	_, err := ioutil.ReadAll(response.Body)
+	if err != nil {
 		fmt.Println(color.RedBold("\n@ Failed to parse card from Trello API response. Bye bye."))
 		os.Exit(1)
 	}
-
-	fmt.Println(string(body))
 }
 
 func GetCard(cardId string, result chan models.Card) {
