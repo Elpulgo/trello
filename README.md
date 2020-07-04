@@ -77,7 +77,7 @@ $ tre card -c 5efc3a17f7910117f0e3b88b
 
 ## Installation
 + Linux `$ curl "https://raw.githubusercontent.com/Elpulgo/trello/master/install/install.sh" | bash`
-+ Windows <a href="https://github.com/Elpulgo/trello/releases/download/v0.1.3/tre-windows-amd64.tar.gz">.tar.gz for Windows</a>
++ Windows <a href="https://github.com/Elpulgo/trello/releases/download/v1.0.0/tre-windows-amd64.tar.gz">.tar.gz for Windows</a>
 
 ## Screen
 
