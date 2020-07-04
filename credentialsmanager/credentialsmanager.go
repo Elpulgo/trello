@@ -11,6 +11,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+        "path/filepath"
 	color "trello/commandColors"
 )
 
@@ -27,11 +28,11 @@ func PersistCredentials(inputKey string, inputToken string, passphrase string) {
 	encryptedKey := encrypt(inputKey, passphrase)
 	encryptedToken := encrypt(inputToken, passphrase)
 
-	fileKey, _ := os.Create(keyFilename)
+	fileKey, _ := os.Create(buildFilePath(keyFilename))
 	defer fileKey.Close()
 	fileKey.Write(encryptedKey)
 
-	fileToken, _ := os.Create(tokenFilename)
+	fileToken, _ := os.Create(buildFilePath(tokenFilename))
 	defer fileToken.Close()
 	fileToken.Write(encryptedToken)
 
@@ -89,7 +90,7 @@ func GetCredentials() (bool, string, string) {
 
 func readCredentials(key *string, token *string, passphrase string) bool {
 
-	dataKey, err := ioutil.ReadFile(keyFilename)
+	dataKey, err := ioutil.ReadFile(buiödFilePath(keyFilename))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -98,7 +99,7 @@ func readCredentials(key *string, token *string, passphrase string) bool {
 		return false
 	}
 
-	dataToken, _ := ioutil.ReadFile(tokenFilename)
+	dataToken, _ := ioutil.ReadFile(buildFilePath(tokenFilename))
 	success, decryptedToken := decrypt(dataToken, passphrase)
 
 	*key = string(decryptedKey)
@@ -108,7 +109,7 @@ func readCredentials(key *string, token *string, passphrase string) bool {
 }
 
 func fileExists(fileName string) bool {
-	if _, err := os.Stat(fileName); os.IsNotExist(err) {
+	if _, err := os.Stat(buildFilePath(fileName)); os.IsNotExist(err) {
 		return false
 	}
 
@@ -161,17 +162,17 @@ func createHash(key string) string {
 }
 
 func PersistPassphrase(passphrase string) {
-	filePassphrase, _ := os.Create(passphraseFilename)
+	filePassphrase, _ := os.Create(buildFilePath(passphraseFilename))
 	defer filePassphrase.Close()
 	filePassphrase.Write([]byte(b64.StdEncoding.EncodeToString([]byte(passphrase))))
 }
 
 func getPassphrase(passphrase *string) bool {
-	if _, err := os.Stat(passphraseFilename); os.IsNotExist(err) {
+	if _, err := os.Stat(buildFilePath(passphraseFilename)); os.IsNotExist(err) {
 		return false
 	}
 
-	dataPassphrase, err := ioutil.ReadFile(passphraseFilename)
+	dataPassphrase, err := ioutil.ReadFile(buildFilePath(passphraseFilename))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -179,4 +180,13 @@ func getPassphrase(passphrase *string) bool {
 	decoded, _ := b64.StdEncoding.DecodeString(string(dataPassphrase))
 	*passphrase = string(decoded)
 	return true
+}
+
+func buildFilePath(fileName string) string {
+        ex, err := os.Executable()
+        if(err != nil) {
+               panic(err.Error())
+        }
+
+       return path.Join(filePath.Dir(ex), fileName)
 }
