@@ -11,8 +11,8 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-       "path"
-        "path/filepath"
+	"path"
+	"path/filepath"
 	color "trello/commandColors"
 )
 
@@ -29,11 +29,22 @@ func PersistCredentials(inputKey string, inputToken string, passphrase string) {
 	encryptedKey := encrypt(inputKey, passphrase)
 	encryptedToken := encrypt(inputToken, passphrase)
 
-	fileKey, _ := os.Create(buildFilePath(keyFilename))
+	fileKey, err := os.Create(buildFilePath(keyFilename))
+	if err != nil {
+		fmt.Println("Failed to persist Trello API key. Try with elevated privileges?")
+		os.Exit(1)
+	}
+
 	defer fileKey.Close()
+
 	fileKey.Write(encryptedKey)
 
-	fileToken, _ := os.Create(buildFilePath(tokenFilename))
+	fileToken, err := os.Create(buildFilePath(tokenFilename))
+	if err != nil {
+		fmt.Println("Failed to persist Trello API key. Try with elevated privileges?")
+		os.Exit(1)
+	}
+
 	defer fileToken.Close()
 	fileToken.Write(encryptedToken)
 
@@ -184,10 +195,10 @@ func getPassphrase(passphrase *string) bool {
 }
 
 func buildFilePath(fileName string) string {
-        ex, err := os.Executable()
-        if(err != nil) {
-               panic(err.Error())
-        }
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err.Error())
+	}
 
-       return path.Join(filepath.Dir(ex), fileName)
+	return path.Join(filepath.Dir(ex), fileName)
 }
